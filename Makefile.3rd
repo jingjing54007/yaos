@@ -1,19 +1,10 @@
 # Module
 
-ifdef USE_UGFX
-	GFXLIB = $(BASEDIR)/ugfx
-	export GFXLIB
-	include $(GFXLIB)/boards/base/Olimex-STM32-LCD/board.mk
-	include $(GFXLIB)/gfx.mk
-
-	INC += $(foreach d, $(GFXINC), -I$d)
-	SRCS +=$(GFXSRC)
-endif
-
 ifdef USE_CUBEMX
-	THIRD_PARTY_CFLAGS  = $(CFLAGS)
-	THIRD_PARTY_CFLAGS += -DUSE_HAL_DRIVER -DSTM32F469xx
-	THIRD_PARTY_SRCS    = \
+	CUBEMX_BUILDIR = $(BUILDIR)/cubemx
+	CUBEMX_CFLAGS  = $(CFLAGS)
+	CUBEMX_CFLAGS += -DUSE_HAL_DRIVER -DSTM32F469xx
+	CUBEMX_SRCS    = \
 		$(BASEDIR)/../CubeMX/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c \
 		$(BASEDIR)/../CubeMX/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c \
 		$(BASEDIR)/../CubeMX/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c \
@@ -33,11 +24,40 @@ ifdef USE_CUBEMX
 		$(BASEDIR)/../CubeMX/Src/stm32f4xx_hal_msp.c \
 		$(BASEDIR)/../CubeMX/Src/system_stm32f4xx.c \
 		$(BASEDIR)/../CubeMX/Src/main.c
-	THIRD_PARTY_OBJS = $(THIRD_PARTY_SRCS:.c=.o)
-	THIRD_PARTY_INCS = \
+	CUBEMX_OBJS = $(CUBEMX_SRCS:.c=.o)
+	CUBEMX_INCS = \
 		-I$(BASEDIR)/../CubeMX/Drivers/STM32F4xx_HAL_Driver/Inc \
 		-I$(BASEDIR)/../CubeMX/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy \
 		-I$(BASEDIR)/../CubeMX/Drivers/CMSIS/Device/ST/STM32F4xx/Include \
 		-I$(BASEDIR)/../CubeMX/Drivers/CMSIS/Include \
 		-I$(BASEDIR)/../CubeMX/Inc
+
+	THIRD_PARTIES += $(CUBEMX_BUILDIR)
+endif
+
+ifdef USE_EMWIN
+	EMWIN_BUILDIR = $(BUILDIR)/emwin
+	EMWIN_CFLAGS  = $(CFLAGS)
+	EMWIN_SRCS    = \
+		$(BASEDIR)/../emWin/Config/GUIConf.c \
+		$(BASEDIR)/../emWin/Config/GUIDRV.c \
+		$(BASEDIR)/../emWin/Config/LCDConf_FlexColor.c \
+		$(BASEDIR)/../emWin/OS/GUI_X.c
+	EMWIN_OBJS = $(EMWIN_SRCS:.c=.o)
+	EMWIN_INCS = \
+		-I$(BASEDIR)/../emWin/inc \
+		-I$(BASEDIR)/../emWin/Config
+
+	LIBS += $(BASEDIR)/../emWin/Lib/STemWin532_CM4_GCC.a
+	THIRD_PARTIES += $(EMWIN_BUILDIR)
+endif
+
+ifdef USE_UGFX
+	GFXLIB = $(BASEDIR)/../ugfx
+	export GFXLIB
+	include $(GFXLIB)/boards/base/Olimex-STM32-LCD/board.mk
+	include $(GFXLIB)/gfx.mk
+
+	INC += $(foreach d, $(GFXINC), -I$d)
+	SRCS +=$(GFXSRC)
 endif

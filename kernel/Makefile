@@ -12,8 +12,7 @@ endif
 OBJS     = $(SRCS:%.c=%.o) $(SRCS_ASM:%.S=%.o)
 
 INC     += -I$(BASEDIR)/include
-LIBS    += 
-CFLAGS  += $(INC) $(LIBS)
+CFLAGS  += $(INC)
 
 SUBDIRS = sched
 

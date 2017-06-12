@@ -3,8 +3,7 @@ SRCS     = $(wildcard *.c)
 OBJS     = $(SRCS:%.c=%.o) $(SRCS_ASM:%.S=%.o)
 
 INC      = -I$(BASEDIR)/include -I./include
-LIBS    +=
-CFLAGS  += $(INC) $(LIBS)
+CFLAGS  += $(INC)
 
 all: subs $(OBJS) lds
 	$(LD) -o mach-$(MACH).o -r mach-$(MACH)/*.o

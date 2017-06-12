@@ -20,8 +20,7 @@ endif
 OBJS     = $(SRCS:%.c=%.o) $(SRCS_ASM:%.S=%.o)
 
 INC     += -I./include
-LIBS    += 
-CFLAGS  += $(INC) $(LIBS)
+CFLAGS  += $(INC)
 
 .SUFFIXES: .c.o
 .SUFFIXES: .s.o

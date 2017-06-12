@@ -100,7 +100,7 @@ OBJS    += $(addprefix $(BUILDIR)/,$(notdir $(SRCS_ASM:.S=.o)))
 export BASEDIR BUILDIR
 export TARGET MACH SOC BOARD LD_SCRIPT
 export CC LD OC OD CFLAGS LDFLAGS OCFLAGS ODFLAGS
-export INC LIBS
+export INC
 
 all: include $(BUILDIR)/$(PROJECT).elf $(BUILDIR)/$(PROJECT).bin $(BUILDIR)/$(PROJECT).hex
 	@echo "\nArchitecture :" $(ARCH)
@@ -111,21 +111,36 @@ all: include $(BUILDIR)/$(PROJECT).elf $(BUILDIR)/$(PROJECT).bin $(BUILDIR)/$(PR
 	@awk '/^.text/ || /^.data/ || /^.bss/ {printf("%s\t\t %8d\n", $$1, strtonum($$3))}' $(BUILDIR)/$(PROJECT).map
 	@$(OD) $(ODFLAGS) $(BUILDIR)/$(PROJECT).elf > $(BUILDIR)/$(PROJECT).dump
 
-$(THIRD_PARTY_OBJS): %.o: %.c Makefile $(BUILDIR)
-	$(CC) $(THIRD_PARTY_CFLAGS) $(THIRD_PARTY_INCS) -c $< -o $(addprefix $(BUILDIR)/3rd/,$(notdir $@))
 $(BUILDIR)/%.o: %.c Makefile $(BUILDIR)
-	$(CC) $(CFLAGS) $(INC) $(LIBS) -c $< -o $@
-$(BUILDIR)/$(PROJECT).elf: $(OBJS) subdirs Makefile $(THIRD_PARTY_OBJS)
-	$(LD) -o $@ $(OBJS) $(patsubst %, %/*.o, $(SUBDIRS)) $(addprefix $(BUILDIR)/3rd/,$(notdir $(THIRD_PARTY_OBJS))) \
-		-Map $(BUILDIR)/$(PROJECT).map $(LDFLAGS)
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
+$(BUILDIR)/$(PROJECT).elf: $(OBJS) subdirs Makefile $(THIRD_PARTIES)
+	$(LD) -o $@ $(OBJS) \
+		$(patsubst %, %/*.o, $(SUBDIRS)) \
+		$(patsubst %, %/*.o, $(THIRD_PARTIES)) \
+		-Map $(BUILDIR)/$(PROJECT).map \
+		$(LIBS) $(LDFLAGS)
 $(BUILDIR)/%.bin: $(BUILDIR)/%.elf $(BUILDIR)
 	$(OC) $(OCFLAGS) -O binary $< $@
 $(BUILDIR)/%.hex: $(BUILDIR)/%.elf $(BUILDIR)
 	$(OC) $(OCFLAGS) -O ihex $< $@
 $(BUILDIR):
-	mkdir -p $@/3rd
-.c.o:
-	$(CC) $(CFLAGS) $(INC) $(LIBS) -c $< -o $@
+	mkdir $@
+
+ifdef USE_CUBEMX
+$(CUBEMX_OBJS): %.o: %.c Makefile
+	@mkdir -p $(CUBEMX_BUILDIR)
+	$(CC) $(CUBEMX_CFLAGS) $(CUBEMX_INCS) -c $< \
+		-o $(addprefix $(CUBEMX_BUILDIR)/,$(notdir $@))
+$(CUBEMX_BUILDIR): $(CUBEMX_OBJS)
+endif
+
+ifdef USE_EMWIN
+$(EMWIN_OBJS): %.o: %.c Makefile
+	@mkdir -p $(EMWIN_BUILDIR)
+	$(CC) $(EMWIN_CFLAGS) $(EMWIN_INCS) -c $< \
+		-o $(addprefix $(EMWIN_BUILDIR)/,$(notdir $@))
+$(EMWIN_BUILDIR): $(EMWIN_OBJS)
+endif
 
 .PHONY: subdirs $(SUBDIRS)
 subdirs: $(SUBDIRS)

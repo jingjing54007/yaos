@@ -14,8 +14,7 @@ INC	+= -I$(NRF_SDK)/components/libraries/util
 INIT_SRC = $(NRF_SDK)/components/toolchain/system_$(SOC).c
 INIT_OBJ = $(addprefix $(SOC)_, $(notdir $(INIT_SRC:%.c=%.o)))
 
-LIBS    +=
-CFLAGS  += $(INC) $(LIBS)
+CFLAGS  += $(INC)
 
 .SUFFIXES: .c.o
 .SUFFIXES: .s.o
@@ -32,7 +31,7 @@ ifdef BOARD
 endif
 
 $(INIT_OBJ): $(INIT_SRC)
-	$(CC) $(CFLAGS) $(INC) $(LIBS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 depend dep:
 	echo $(CC)
