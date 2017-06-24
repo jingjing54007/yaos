@@ -9,7 +9,8 @@ endif
 ifdef CONFIG_PAGING
 	SRCS += buddy.c
 endif
-OBJS     = $(SRCS:%.c=%.o) $(SRCS_ASM:%.S=%.o)
+OBJS = $(SRCS:%.c=%.o) $(SRCS_ASM:%.S=%.o)
+DEPS = $(OBJS:%.o=%.d)
 
 INC     += -I$(BASEDIR)/include
 CFLAGS  += $(INC)
@@ -20,7 +21,11 @@ SUBDIRS = sched
 .SUFFIXES: .s.o
 .SUFFIXES: .S.o
 
-all: $(OBJS) subdirs
+all: $(OBJS) subdirs $(DEPS)
+
+.c.o:
+	@echo "Compiling $<"
+	@$(CC) $(CFLAGS) $(INC) $(LIBS) -c $< -o $@
 
 .PHONY: subdirs $(SUBDIRS)
 subdirs: $(SUBDIRS)
@@ -35,7 +40,7 @@ depend dep:
 
 clean:
 	@for i in $(SUBDIRS); do $(MAKE) clean -C $$i || exit $?; done
-	@rm -f $(wildcard *.o) .depend
+	@rm -f $(OBJS) $(DEPS) .depend
 
 ifneq ($(MAKECMDGOALS), clean)
 ifneq ($(MAKECMDGOALS), depend)

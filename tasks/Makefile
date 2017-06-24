@@ -1,6 +1,7 @@
 SRCS_ASM = $(wildcard *.S)
 SRCS     = $(wildcard *.c)
 OBJS     = $(SRCS:%.c=%.o) $(SRCS_ASM:%.S=%.o)
+DEPS     = $(OBJS:%.o=%.d)
 
 INC     += -I$(BASEDIR)/include
 CFLAGS  += $(INC)
@@ -11,7 +12,7 @@ SUBDIRS = shell
 .SUFFIXES: .s.o
 .SUFFIXES: .S.o
 
-all: $(OBJS) subdirs
+all: $(OBJS) subdirs $(DEPS)
 
 .PHONY: subdirs $(SUBDIRS)
 subdirs: $(SUBDIRS)
@@ -20,13 +21,17 @@ $(SUBDIRS):
 	@$(MAKE) -C $@
 	$(LD) -o $@.o -r $@/*.o
 
+.c.o:
+	@echo "Compiling $<"
+	@$(CC) $(CFLAGS) $(INC) $(LIBS) -c $< -o $@
+
 depend dep:
 	echo $(CC)
 	$(CC) $(CFLAGS) -MM $(SRCS) $(TARGET_SRCS) > .depend
 
 clean:
 	@for i in $(SUBDIRS); do $(MAKE) clean -C $$i || exit $?; done
-	@rm -f $(wildcard *.o) .depend
+	@rm -f $(OBJS) $(DEPS) .depend
 
 ifneq ($(MAKECMDGOALS), clean)
 ifneq ($(MAKECMDGOALS), depend)

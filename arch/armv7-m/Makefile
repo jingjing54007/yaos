@@ -1,6 +1,7 @@
 SRCS_ASM = $(wildcard *.S)
 SRCS     = $(wildcard *.c)
 OBJS     = $(SRCS:%.c=%.o) $(SRCS_ASM:%.S=%.o)
+DEPS     = $(OBJS:%.o=%.d)
 
 INC     += -I./include
 CFLAGS  += $(INC)
@@ -9,8 +10,12 @@ CFLAGS  += $(INC)
 .SUFFIXES: .s.o
 .SUFFIXES: .S.o
 
-all: subs $(OBJS) lds
+all: subs $(OBJS) lds $(DEPS)
 	$(LD) -o mach-$(MACH).o -r mach-$(MACH)/*.o
+
+.c.o:
+	@echo "Compiling $<"
+	@$(CC) $(CFLAGS) $(INC) $(LIBS) -c $< -o $@
 
 depend dep:
 	echo $(CC)
@@ -18,7 +23,7 @@ depend dep:
 
 lds:
 	-cp mach-$(MACH)/$(LD_SCRIPT) generated.lds
-	$(CC) -E -x c $(CFLAGS) common.lds | grep -v '^#' >> generated.lds
+	@$(CC) -E -x c $(CFLAGS) common.lds | grep -v '^#' >> generated.lds
 
 subs:
 	@$(MAKE) --print-directory -C mach-$(MACH)
@@ -37,7 +42,7 @@ ifdef BOARD
 endif
 
 clean:
-	@rm -f $(OBJS) .depend
+	@rm -f $(OBJS) $(DEPS) .depend
 	@rm -f generated.lds
 	@$(MAKE) clean -C mach-$(MACH)
 	@rm -f mach-$(MACH).o

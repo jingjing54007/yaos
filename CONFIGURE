@@ -26,6 +26,7 @@ MODULE_GPIO=y
 #MODULE_CLCD=y
 
 # Third party modules
+#USE_CMSIS=y
 #USE_CUBEMX=y
 #USE_EMWIN=y
 #USE_UGFX=y

@@ -17,7 +17,8 @@ endif
 ifdef MODULE_CLCD
 	SRCS += clcd.c
 endif
-OBJS     = $(SRCS:%.c=%.o) $(SRCS_ASM:%.S=%.o)
+OBJS = $(SRCS:%.c=%.o) $(SRCS_ASM:%.S=%.o)
+DEPS = $(OBJS:%.o=%.d)
 
 INC     += -I./include
 CFLAGS  += $(INC)
@@ -26,14 +27,18 @@ CFLAGS  += $(INC)
 .SUFFIXES: .s.o
 .SUFFIXES: .S.o
 
-all: $(OBJS)
+all: $(OBJS) $(DEPS)
+
+.c.o:
+	@echo "Compiling $<"
+	@$(CC) $(CFLAGS) $(INC) $(LIBS) -c $< -o $@
 
 depend dep:
 	echo $(CC)
 	$(CC) $(CFLAGS) -MM $(SRCS) $(TARGET_SRCS) > .depend
 
 clean:
-	@rm -f $(OBJS) .depend $(wildcard *.o)
+	@rm -f $(OBJS) $(DEPS) .depend
 
 ifneq ($(MAKECMDGOALS), clean)
 ifneq ($(MAKECMDGOALS), depend)

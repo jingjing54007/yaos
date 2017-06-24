@@ -6,9 +6,9 @@ DEPS     = $(OBJS:%.o=%.d)
 INC     += -I./include
 CFLAGS  += $(INC)
 
-#.SUFFIXES: .c.o
-#.SUFFIXES: .s.o
-#.SUFFIXES: .S.o
+.SUFFIXES: .c.o
+.SUFFIXES: .s.o
+.SUFFIXES: .S.o
 
 all: $(OBJS) $(DEPS)
 
@@ -21,7 +21,7 @@ depend dep:
 	$(CC) $(CFLAGS) -MM $(SRCS) $(TARGET_SRCS) > .depend
 
 clean:
-	@rm -f $(OBJS) .depend *.d
+	@rm -f $(OBJS) $(DEPS) .depend
 
 ifneq ($(MAKECMDGOALS), clean)
 ifneq ($(MAKECMDGOALS), depend)

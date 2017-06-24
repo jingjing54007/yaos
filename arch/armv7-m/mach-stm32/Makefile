@@ -1,6 +1,7 @@
 SRCS_ASM = $(wildcard *.S)
 SRCS     = $(wildcard *.c)
 OBJS     = $(SRCS:%.c=%.o) $(SRCS_ASM:%.S=%.o)
+DEPS     = $(OBJS:%.o=%.d)
 
 INC     += -I./include
 CFLAGS  += $(INC)
@@ -9,10 +10,14 @@ CFLAGS  += $(INC)
 .SUFFIXES: .s.o
 .SUFFIXES: .S.o
 
-all: board $(OBJS)
+all: board $(OBJS) $(DEPS)
 ifdef BOARD
 	$(LD) -o $(BOARD).o -r boards/$(BOARD)/*.o
 endif
+
+.c.o:
+	@echo "Compiling $<"
+	@$(CC) $(CFLAGS) $(INC) $(LIBS) -c $< -o $@
 
 board:
 ifdef BOARD
@@ -24,7 +29,7 @@ depend dep:
 	$(CC) $(CFLAGS) -MM $(SRCS) $(TARGET_SRCS) > .depend
 
 clean:
-	@rm -f $(OBJS) .depend
+	@rm -f $(OBJS) $(DEPS) .depend
 ifdef BOARD
 	@rm -f $(BOARD).o
 	@$(MAKE) clean -C boards/$(BOARD)

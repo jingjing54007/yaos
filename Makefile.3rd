@@ -1,10 +1,24 @@
 # Module
 
+ifdef USE_CMSIS
+	CMSIS_TARGET  = cmsis
+	$(CMSIS_TARGET)_CFLAGS  = $(CFLAGS)
+	$(CMSIS_TARGET)_CFLAGS += -DARM_MATH_CM4 -D__FPU_PRESENT
+	$(CMSIS_TARGET)_SRCS    = \
+			$(BASEDIR)/../CubeMX/Drivers/CMSIS/DSP_Lib/Source/CommonTables/arm_common_tables.c \
+			$(BASEDIR)/../CubeMX/Drivers/CMSIS/DSP_Lib/Source/FastMathFunctions/arm_cos_f32.c \
+			$(BASEDIR)/../CubeMX/Drivers/CMSIS/DSP_Lib/Source/FastMathFunctions/arm_sin_f32.c
+	$(CMSIS_TARGET)_INCS    = \
+			-I$(BASEDIR)/../CubeMX/Drivers/CMSIS/Device/ST/STM32F4xx/Include \
+			-I$(BASEDIR)/../CubeMX/Drivers/CMSIS/Include
+	THIRD_PARTIES += $(CMSIS_TARGET)
+endif
+
 ifdef USE_CUBEMX
-	CUBEMX_BUILDIR = $(BUILDIR)/cubemx
-	CUBEMX_CFLAGS  = $(CFLAGS)
-	CUBEMX_CFLAGS += -DUSE_HAL_DRIVER -DSTM32F469xx
-	CUBEMX_SRCS    = \
+	CUBEMX_TARGET  = cubemx
+	$(CUBEMX_TARGET)_CFLAGS  = $(CFLAGS)
+	$(CUBEMX_TARGET)_CFLAGS += -DUSE_HAL_DRIVER -DSTM32F469xx
+	$(CUBEMX_TARGET)_SRCS    = \
 		$(BASEDIR)/../CubeMX/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c \
 		$(BASEDIR)/../CubeMX/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c \
 		$(BASEDIR)/../CubeMX/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c \
@@ -24,15 +38,13 @@ ifdef USE_CUBEMX
 		$(BASEDIR)/../CubeMX/Src/stm32f4xx_hal_msp.c \
 		$(BASEDIR)/../CubeMX/Src/system_stm32f4xx.c \
 		$(BASEDIR)/../CubeMX/Src/main.c
-	CUBEMX_OBJS = $(CUBEMX_SRCS:.c=.o)
-	CUBEMX_INCS = \
+	$(CUBEMX_TARGET)_INCS = \
 		-I$(BASEDIR)/../CubeMX/Drivers/STM32F4xx_HAL_Driver/Inc \
 		-I$(BASEDIR)/../CubeMX/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy \
 		-I$(BASEDIR)/../CubeMX/Drivers/CMSIS/Device/ST/STM32F4xx/Include \
 		-I$(BASEDIR)/../CubeMX/Drivers/CMSIS/Include \
 		-I$(BASEDIR)/../CubeMX/Inc
-
-	THIRD_PARTIES += $(CUBEMX_BUILDIR)
+	THIRD_PARTIES += $(CUBEMX_TARGET)
 endif
 
 ifdef USE_EMWIN
