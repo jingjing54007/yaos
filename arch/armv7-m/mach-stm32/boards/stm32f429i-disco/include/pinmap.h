@@ -13,6 +13,7 @@
  * 09: PJ base 144
  * 10: PK base 160 */
 
+#define PIN_DEBUG			0 /* PA.0 */
 #define PIN_STATUS_LED			PIN_LED_GREEN
 
 #define PIN_LED_GREEN			109//(96+13) /* PG.13 */

@@ -89,8 +89,9 @@ TARGET  = $(ARCH)
 ifeq ($(SOC),bcm2835)
 	TARGET  = armv7-a
 endif
-CFLAGS += -march=$(ARCH) -DMACHINE=$(MACH) -DSOC=$(SOC)
-LDFLAGS = -Tarch/$(TARGET)/generated.lds -L$(LD_LIBRARY_PATH) -lgcc
+CFLAGS  += -march=$(ARCH) -DMACHINE=$(MACH) -DSOC=$(SOC)
+LDFLAGS  = -Tarch/$(TARGET)/generated.lds
+LDFLAGS += -L$(LD_LIBRARY_PATH) -lgcc -lc -lm
 
 SRCS_ASM = $(wildcard *.S)
 SRCS    += $(wildcard *.c)
@@ -164,11 +165,13 @@ $(BUILDIR)/$(CUBEMX_TARGET)/%.c.o: | $(BUILDIR)/$(CUBEMX_TARGET)
 endif
 
 ifdef USE_EMWIN
-$(EMWIN_OBJS): %.o: %.c Makefile
-	@mkdir -p $(EMWIN_BUILDIR)
-	$(CC) $(EMWIN_CFLAGS) $(EMWIN_INCS) -c $< \
-		-o $(addprefix $(EMWIN_BUILDIR)/,$(notdir $@))
-$(EMWIN_BUILDIR): $(EMWIN_OBJS)
+$(BUILDIR)/$(EMWIN_TARGET): $(BUILDIR)
+	@mkdir -p $@
+$(EMWIN_TARGET): $(call get_objects, $(EMWIN_TARGET), $($(EMWIN_TARGET)_SRCS)) \
+	$(eval -include $(DEPENDENCIES))
+$(BUILDIR)/$(EMWIN_TARGET)/%.c.o: | $(BUILDIR)/$(EMWIN_TARGET)
+	@echo "Compiling $($@)"
+	@$(CC) $($(EMWIN_TARGET)_CFLAGS) $($(EMWIN_TARGET)_INCS) $(INC) -c -o $@ $($@)
 endif
 
 .PHONY: subdirs $(SUBDIRS)
@@ -208,11 +211,13 @@ ifneq ($(MAKECMDGOALS), clean)
 	endif
 endif
 
-armv7-m4: armv7-m
-	@echo "CFLAGS += -mtune=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16" >> .config
-	@echo "CFLAGS += -fsingle-precision-constant -Wdouble-promotion" >> .config
+armv7-m4: armv7e-m
+	@echo "CFLAGS += -mtune=cortex-m4" >> .config
 armv7-m3: armv7-m
 	@echo "CFLAGS += -mtune=cortex-m3" >> .config
+armv7e-m: armv7-m
+	@echo "CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16" >> .config
+	@echo "CFLAGS += -fsingle-precision-constant -Wdouble-promotion" >> .config
 armv7-m:
 	@echo "ARCH = armv7-m" > .config
 	@echo "CFLAGS += -mthumb" >> .config

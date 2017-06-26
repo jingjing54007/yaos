@@ -5,12 +5,11 @@ ifdef USE_CMSIS
 	$(CMSIS_TARGET)_CFLAGS  = $(CFLAGS)
 	$(CMSIS_TARGET)_CFLAGS += -DARM_MATH_CM4 -D__FPU_PRESENT
 	$(CMSIS_TARGET)_SRCS    = \
-			$(BASEDIR)/../CubeMX/Drivers/CMSIS/DSP_Lib/Source/CommonTables/arm_common_tables.c \
-			$(BASEDIR)/../CubeMX/Drivers/CMSIS/DSP_Lib/Source/FastMathFunctions/arm_cos_f32.c \
-			$(BASEDIR)/../CubeMX/Drivers/CMSIS/DSP_Lib/Source/FastMathFunctions/arm_sin_f32.c
+		$(BASEDIR)/../CubeMX/Drivers/CMSIS/DSP_Lib/Source/CommonTables/arm_common_tables.c \
+		$(BASEDIR)/../CubeMX/Drivers/CMSIS/DSP_Lib/Source/FastMathFunctions/arm_sin_f32.c
 	$(CMSIS_TARGET)_INCS    = \
-			-I$(BASEDIR)/../CubeMX/Drivers/CMSIS/Device/ST/STM32F4xx/Include \
-			-I$(BASEDIR)/../CubeMX/Drivers/CMSIS/Include
+		-I$(BASEDIR)/../CubeMX/Drivers/CMSIS/Device/ST/STM32F4xx/Include \
+		-I$(BASEDIR)/../CubeMX/Drivers/CMSIS/Include
 	THIRD_PARTIES += $(CMSIS_TARGET)
 endif
 
@@ -48,20 +47,18 @@ ifdef USE_CUBEMX
 endif
 
 ifdef USE_EMWIN
-	EMWIN_BUILDIR = $(BUILDIR)/emwin
-	EMWIN_CFLAGS  = $(CFLAGS)
-	EMWIN_SRCS    = \
+	EMWIN_TARGET = emwin
+	$(EMWIN_TARGET)_CFLAGS  = $(CFLAGS)
+	$(EMWIN_TARGET)_CFLAGS += #-DOS_SUPPORT
+	$(EMWIN_TARGET)_SRCS    = \
 		$(BASEDIR)/../emWin/Config/GUIConf.c \
-		$(BASEDIR)/../emWin/Config/GUIDRV.c \
-		$(BASEDIR)/../emWin/Config/LCDConf_FlexColor.c \
+		$(BASEDIR)/../emWin/Config/LCDConf.c \
 		$(BASEDIR)/../emWin/OS/GUI_X.c
-	EMWIN_OBJS = $(EMWIN_SRCS:.c=.o)
-	EMWIN_INCS = \
+	$(EMWIN_TARGET)_INCS = \
 		-I$(BASEDIR)/../emWin/inc \
 		-I$(BASEDIR)/../emWin/Config
-
 	LIBS += $(BASEDIR)/../emWin/Lib/STemWin532_CM4_GCC.a
-	THIRD_PARTIES += $(EMWIN_BUILDIR)
+	THIRD_PARTIES += $(EMWIN_TARGET)
 endif
 
 ifdef USE_UGFX
